@@ -1,29 +1,62 @@
-from flask import Flask, render_template, request
+import os
+from flask import Flask, render_template, request, redirect, url_for, session
+from deepface import DeepFace
 
-app = Flask("Test Project")
 
-@app.route("/", methods=["GET"])
-def index():
-    name = "abdollah"
-    return render_template("index.html", firstname=name, lastname="ramezani")
+app = Flask("Analyze Face")
+app.config["UPLOAD_FOLDER"] = './uploads'  #کانفیگها حتما باید با حروف بزرگ نوشته بشن
+app.config["ALLOWED_EXTENSIONS"] = {'png', 'jpg', 'jpeg'}
 
-@app.route("/download", methods=["GET"])
-def download():
-    media = ["image", "music", "movie"]
-    return render_template("download.html", media=media)
-
-@app.route("/me")
-def my_information():
-    my_info = {"firstname":"abdollah", "email":"a.ramezani84@gmail.com"}
-    return my_info
-
-@app.route("/blog", methods=["GET", "POST"])
-def blog():
-    if request.method == "GET":
-        return "This is GET method"
+def auth(email, password):
+    if email =="admin@gmail.com" and password == "admin":
+        return True
+    else:
+        return False
     
-    elif request.method == 'POST':
-        return "Thid id POST method"  
+def allowed_files(filename):
+    return True    
+
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "GET":
+        return render_template("login.html")
+    
+    elif request.method == "POST":
+        email = request.form["email"]
+        password = request.form["password"]
+        result = auth(email, password)
+        if result:
+            #upload
+            return redirect(url_for("upload"))
+        else:
+            #login
+            return redirect(url_for("login"))
+
+@app.route("/upload", methods = ["GET", "POST"])
+def upload():
+    if request.method == "GET":
+        return render_template("upload.html")
+    
+    elif request.method == "POST":
+        image = request.files["image"]
+        if image.filename == "":  #فایل خالی
+            return redirect(url_for("upload"))
+        else:
+            if image and allowed_files(image.filename):
+                save_path = os.path.join(app.config["UPLOAD_FOLDER"], image.filename)
+                image.save(save_path)
+                result = DeepFace.analyze(
+                    img_path = save_path, 
+                    actions = ['age'],
+                )
+
+        return render_template("result.html", age=result[0]["age"])
+
+
 
 
 

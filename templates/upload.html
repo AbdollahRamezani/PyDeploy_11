@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Upload</title>
     <link href="static/css/bootstrap.css" rel="stylesheet" type="text/css">
 </head>
 <body>
@@ -45,7 +45,16 @@
             </div>
           </nav>
           
-        <h1>WellCome To My Analyzing Face App</h1>
+        <h1>Upload Your Image</h1>
+
+        <form method="post" enctype="multipart/form-data">
+            <div class="mb-3">
+                <input class="form-control" name="image" type="file" id="formFile"><br>
+                <button type="submit" class="btn btn-danger">Send File</button>
+            </div>
+        </form>  
+        
+
     </div>
     
     <script src="static/js.bootstrap.js"></script>
